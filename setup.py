@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(name='squad_df',
-      version='0.1',
+      version='0.2',
       packages=['squad_df'],
       install_requires=['requests'],
       python_requires=">=3.6",

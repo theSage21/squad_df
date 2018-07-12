@@ -45,6 +45,7 @@ class SquadDataset:
                     for qas in para['qas']:
                         data = {"wiki_id": wiki_id,
                                 'para_id': para_id,
+                                'question_id': qas['id'],
                                 'question': qas['question'],
                                 'context': para['context'],
                                 'is_train': is_train,
@@ -55,13 +56,10 @@ class SquadDataset:
                         yield data
 
 
+v1 = SquadDataset('1.1')
+v2 = SquadDataset('2.0')
 if __name__ == '__main__':
-    v2 = SquadDataset('1.1')
-    p, p2 = False, False
+    for _ in v1:
+        pass
     for _ in v2:
-        if _['possible'] and not p:
-            print(_)
-            p = True
-        if not _['possible'] and not p2:
-            print(_)
-            p2 = True
+        pass
