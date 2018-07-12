@@ -1,14 +1,6 @@
 import os
 import json
-from urllib.request import urlretrieve
-
-
-def reporter(done, size, total, width=50):
-    fraction = done * size / total
-    done = int(width * fraction)
-    string = '=' * done
-    string += '-' * (width - done)
-    print(round(fraction, 2), f'[{string}]', end='\r')
+import requests
 
 
 class SquadDataset:
@@ -26,15 +18,21 @@ class SquadDataset:
         self.train_path = os.path.join(self.data_folder, train_fn)
         self.dev_path = os.path.join(self.data_folder, dev_fn)
         if not os.path.exists(self.train_path):
-            print('Downloading training dataset')
             url = self.base_url + train_fn
-            print(url)
-            urlretrieve(url, self.train_path, reporter)
+            print(f'Downloading {url}')
+            r = requests.get(url)
+            with open(self.train_path, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=1024):
+                    if chunk:
+                        f.write(chunk)
         if not os.path.exists(self.dev_path):
-            print('Downloading development dataset')
             url = self.base_url + dev_fn
-            print(url)
-            urlretrieve(url, self.dev_path, reporter)
+            print(f'Downloading {url}')
+            r = requests.get(url)
+            with open(self.dev_path, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=1024):
+                    if chunk:
+                        f.write(chunk)
 
     def __iter__(self):
         self.__ensure_dataset__()
@@ -45,29 +43,25 @@ class SquadDataset:
             for wiki_id, wiki in enumerate(data['data']):
                 for para_id, para in enumerate(wiki['paragraphs']):
                     for qas in para['qas']:
-                        if qas.get('is_impossible', False):
-                            yield {"wiki_id": wiki_id,
-                                   'para_id': para_id,
-                                   'question': qas['question'],
-                                   'context': para['context'],
-                                   'answers': [],
-                                   'plausible': qas['plausible_answers'],
-                                   'possible': False,
-                                   'is_train': is_train
-                                   }
-                        else:  # possible
-                            yield {"wiki_id": wiki_id,
-                                   'para_id': para_id,
-                                   'question': qas['question'],
-                                   'context': para['context'],
-                                   'answers': qas['answers'],
-                                   'plausible': [],
-                                   'possible': True,
-                                   'is_train': is_train
-                                   }
+                        data = {"wiki_id": wiki_id,
+                                'para_id': para_id,
+                                'question': qas['question'],
+                                'context': para['context'],
+                                'is_train': is_train,
+                                'answers': qas.get('answers', []),
+                                'plausible': qas.get('plausible_answers', []),
+                                'possible': not qas.get('is_impossible', False)
+                                }
+                        yield data
 
 
 if __name__ == '__main__':
-    v2 = SquadDataset('2.0')
+    v2 = SquadDataset('1.1')
+    p, p2 = False, False
     for _ in v2:
-        pass
+        if _['possible'] and not p:
+            print(_)
+            p = True
+        if not _['possible'] and not p2:
+            print(_)
+            p2 = True
