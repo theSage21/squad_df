@@ -43,16 +43,21 @@ class SquadDataset:
             for wiki_id, wiki in enumerate(data['data']):
                 for para_id, para in enumerate(wiki['paragraphs']):
                     for qas in para['qas']:
+                        marks = {}
+                        for i, ans in enumerate(qas.get('answers',
+                                                        qas.get('plausible_answers',
+                                                                []))):
+                            marks['mark_{}_text'.format(i)] = ans['text']
+                            marks['mark_{}_start'.format(i)] = ans['answer_start']
                         data = {"wiki_id": wiki_id,
                                 'para_id': para_id,
                                 'question_id': qas['id'],
-                                'question': qas['question'],
                                 'context': para['context'],
+                                'question': qas['question'],
                                 'is_train': is_train,
-                                'answers': qas.get('answers', []),
-                                'plausible': qas.get('plausible_answers', []),
                                 'possible': not qas.get('is_impossible', False)
                                 }
+                        data.update(marks)
                         yield data
 
 
