@@ -43,8 +43,8 @@ class SquadDataset:
             for wiki_id, wiki in enumerate(data['data']):
                 for para_id, para in enumerate(wiki['paragraphs']):
                     for qas in para['qas']:
-                        answers = qas.get('answers',
-                                          qas.get('plausible_answers', []))
+                        answers = qas.get('plausible_answers', [])
+                        answers += qas.get('answers', [])
                         answers.sort(key=lambda x: len(x['text']))
                         marks = {}
                         for i, ans in enumerate(answers):
