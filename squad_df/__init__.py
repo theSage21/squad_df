@@ -40,8 +40,8 @@ class SquadDataset:
                                [False, self.dev_path]]:
             with open(path, 'r') as fl:
                 data = json.load(fl)
-            for wiki_id, wiki in enumerate(data['data']):
-                for para_id, para in enumerate(wiki['paragraphs']):
+            for wiki_idx, wiki in enumerate(data['data']):
+                for para_idx, para in enumerate(wiki['paragraphs']):
                     for qas in para['qas']:
                         answers = qas.get('plausible_answers', [])
                         answers += qas.get('answers', [])
@@ -50,8 +50,9 @@ class SquadDataset:
                         for i, ans in enumerate(answers):
                             marks['mark_{}_text'.format(i)] = ans['text']
                             marks['mark_{}_start'.format(i)] = ans['answer_start']
-                        data = {"wiki_id": wiki_id,
-                                'para_id': para_id,
+                        data = {"wiki_idx": wiki_idx,
+                                "wiki_title": wiki['title']
+                                'para_idx': para_idx,
                                 'question_id': qas['id'],
                                 'context': para['context'],
                                 'question': qas['question'],
