@@ -51,7 +51,7 @@ class SquadDataset:
                             marks['mark_{}_text'.format(i)] = ans['text']
                             marks['mark_{}_start'.format(i)] = ans['answer_start']
                         data = {"wiki_idx": wiki_idx,
-                                "wiki_title": wiki['title']
+                                "wiki_title": wiki['title'],
                                 'para_idx': para_idx,
                                 'question_id': qas['id'],
                                 'context': para['context'],
